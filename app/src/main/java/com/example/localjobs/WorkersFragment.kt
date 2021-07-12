@@ -21,7 +21,9 @@ override fun onCreateView(inflater: LayoutInflater,
     val bDaButton = self?.findViewById<androidx.cardview.widget.CardView>(R.id.Barber)
     bDaButton?.setOnClickListener {
         Toast.makeText(ctx, "button works!", Toast.LENGTH_SHORT).show()
+
     }
     return self
+
 }
 }
