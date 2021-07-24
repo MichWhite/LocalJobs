@@ -1,6 +1,10 @@
 package com.example.localjobs
 
 import android.os.Bundle
+import android.util.Log
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
 import androidx.annotation.Nullable
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -9,79 +13,68 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
+import kotlin.math.log
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var edName: EditText
+    private lateinit var edEmail: EditText
+    private lateinit var btnAdd: Button
+    private lateinit var btnView: Button
+            private lateinit var sqLiteHelper: SQLiteHelper
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.layout_add_worker)
 
-        // Create the object of Toolbar, ViewPager and
-        // TabLayout and use “findViewById()” method*/
-        var tab_toolbar = findViewById<Toolbar>(R.id.toolbar)
-        var tab_viewpager = findViewById<ViewPager>(R.id.tab_viewpager)
-        var tab_tablayout = findViewById<TabLayout>(R.id.tab_tablayout)
+        initView()
+        sqLiteHelper = SQLiteHelper(this)
 
-        // As we set NoActionBar as theme to this activity
-        // so when we run this project then this activity doesn't
-        // show title. And for this reason, we need to run
-        // setSupportActionBar method
-        setSupportActionBar(tab_toolbar)
-        setupViewPager(tab_viewpager)
+        btnAdd.setOnClickListener {addWorker()}
+        btnView.setOnClickListener {getWorker()}
 
-        // If we dont use setupWithViewPager() method then
-        // tabs are not used or shown when activity opened
-        tab_tablayout.setupWithViewPager(tab_viewpager)
     }
 
-    // This function is used to add items in arraylist and assign
-    // the adapter to view pager
-    private fun setupViewPager(viewpager: ViewPager) {
-        var adapter: ViewPagerAdapter = ViewPagerAdapter(supportFragmentManager)
-
-        // LoginFragment is the name of Fragment and the Login
-        // is a title of tab
-        adapter.addFragment(JobsFragment(), "Jobs")
-        adapter.addFragment(WorkersFragment(), "Workers")
-
-        // setting adapter to view pager.
-        viewpager.setAdapter(adapter)
+    private fun getWorker() {
+        val wrkList = sqLiteHelper.getAllWorkers()
+        Log.e("YO","{$wrkList.size}")
     }
 
-    // This "ViewPagerAdapter" class overrides functions which are
-    // necessary to get information about which item is selected
-    // by user, what is title for selected item and so on.*/
-    class ViewPagerAdapter : FragmentPagerAdapter {
-
-        // objects of arraylist. One is of Fragment type and
-        // another one is of String type.*/
-        private final var fragmentList1: ArrayList<Fragment> = ArrayList()
-        private final var fragmentTitleList1: ArrayList<String> = ArrayList()
-
-        // this is a secondary constructor of ViewPagerAdapter class.
-        public constructor(supportFragmentManager: FragmentManager)
-                : super(supportFragmentManager)
-
-        // returns which item is selected from arraylist of fragments.
-        override fun getItem(position: Int): Fragment {
-            return fragmentList1.get(position)
-        }
-
-        // returns which item is selected from arraylist of titles.
-        @Nullable
-        override fun getPageTitle(position: Int): CharSequence {
-            return fragmentTitleList1.get(position)
-        }
-
-        // returns the number of items present in arraylist.
-        override fun getCount(): Int {
-            return fragmentList1.size
-        }
-
-        // this function adds the fragment and title in 2 separate arraylist.
-        fun addFragment(fragment: Fragment, title: String) {
-            fragmentList1.add(fragment)
-            fragmentTitleList1.add(title)
-        }
+    private fun initView() {
+        edName = findViewById(R.id.edName)
+        edName = findViewById(R.id.edName)
+        btnAdd = findViewById(R.id.btnAdd)
+        btnView = findViewById(R.id.btnView)
     }
+
+
+    private fun addWorker(){
+        val name = edName.text.toString()
+        val email = edEmail.text.toString()
+
+        if(name.isEmpty() || email.isEmpty()) {
+            Toast.makeText(this, "Please enter required field", Toast.LENGTH_SHORT).show()
+        }
+        else {
+            val wrk = WorkerModel(name = name, email = email)
+            val status = sqLiteHelper.insertWorker(wrk)
+
+            if (status > -1) {
+                Toast.makeText(this, "Worker Added", Toast.LENGTH_SHORT).show()
+                clearEditText()
+            }else{
+                Toast.makeText(this, "Record not saved", Toast.LENGTH_SHORT).show()
+
+            }
+        }
+
+
+    }
+
+    private fun clearEditText() {
+        edName.setText("")
+        edEmail.setText("")
+        edName.requestFocus()
+    }
+
 }
