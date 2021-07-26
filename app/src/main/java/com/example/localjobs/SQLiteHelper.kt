@@ -22,7 +22,7 @@ class SQLiteHelper(context: Context): SQLiteOpenHelper(context,DATABASE_NAME,nul
 
     override fun onCreate(db: SQLiteDatabase?) {
         val createTableWorker = ("CREATE TABLE "+ TBL_Worker+"("+
-                ID+" Integar Primary Key,"+ Name + " TEXT,"+ Email + " TEXT" +")")
+                ID+" Integer Primary Key, "+ Name + " TEXT, "+ Email + " TEXT " +")")
         db?.execSQL(createTableWorker)
     }
 
@@ -53,28 +53,28 @@ class SQLiteHelper(context: Context): SQLiteOpenHelper(context,DATABASE_NAME,nul
 
         val cursor : Cursor?
         try {
-
             cursor = db.rawQuery(selectQuery,null)
         }catch (e: Exception){
             e.printStackTrace()
             db.execSQL(selectQuery)
+            db.close();
             return ArrayList()
 
         }
         var id: Int
-        var Name: String
-        var Email : String
+        var name: String
+        var email : String
 
         if(cursor.moveToFirst()){
             do{
                 id = cursor.getInt(cursor.getColumnIndex("id"))
-                Name = cursor.getString(cursor.getColumnIndex("Name"))
-                Email = cursor.getString(cursor.getColumnIndex("Email"))
+                name = cursor.getString(cursor.getColumnIndex("Name"))
+                email = cursor.getString(cursor.getColumnIndex("Email"))
 
-                val wrk = WorkerModel(id = id, name=Name, email = Email)
+                val wrk = WorkerModel(id = id, name=name, email = email)
                 wrkList.add(wrk)
-            }
-                while(cursor.moveToLast())
+
+            }while(cursor.moveToLast())
         }
             return wrkList
         }
